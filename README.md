@@ -1,5 +1,11 @@
 # RKMVPC Watermark & Photo Utility
 
+[![Download Latest Release](https://img.shields.io/badge/Download-RKMVPC.exe-brightgreen?style=for-the-badge&logo=windows)](https://github.com/ManaswiDutta/RKMVPC-Watermark/releases/latest/download/RKMVPC.exe)
+
+> ⚡ **Quick Start:** Click the button above to download the latest executable version of the watermark tool for Windows.
+
+# RKMVPC Watermark & Photo Utility
+
 A lightweight, framework-free desktop application designed for the RKMVM Photography Club to streamline image watermarking, basic editing, and preparation for the automated gallery website.
 
 ## 🎯 Overview
