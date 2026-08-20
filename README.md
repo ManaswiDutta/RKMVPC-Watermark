@@ -17,6 +17,22 @@ A modern, desktop watermarking application custom-built for the **Vidyamandira P
 
 ---
 
+## 🚀 What's New in v3.5.0
+
+* 🎨 **Complete Interface Redesign:** Sleek, modern dark-themed GUI organized with styled cards, teal headers, and responsive layouts.
+* 🧭 **Vertical Sidebar Navigation:** Effortlessly switch between master options and individual watermark controls with active indicator states.
+* 🗂 **Optimized Dual Workflows:**
+  * **Batch Folder:** Process entire albums with real-time progress tracking and ETA calculations.
+  * **Single-Image Editing:** Work with full-resolution previews and deferred destination selection (only prompted when clicking *Save / Export*).
+* ⌨️ **Keyboard & Mouse Controls:**
+  * **Arrow Keys (`↑`, `↓`, `←`, `→`):** Move and fine-tune watermark positions on screen with live slider and preview sync.
+  * **Mouse-Wheel Scaling:** Hover over any logo or text on the canvas to auto-select and scale it spontaneously.
+  * **`Esc` Key:** Instantly deselect elements and return to Master Settings.
+* 📊 **Live Value Readouts:** Real-time percentage badges (`%`) and degree indicators (`°`) beside every slider.
+* 🪟 **Window Lifecycle & Taskbar Integration:** Full Windows taskbar identity and clean process termination on close.
+
+---
+
 ## 📦 Version History & Downloads
 
 All current and past versions of the executable are available in the repository's [`dist/`](file:///c:/Users/manas/Documents/codes/python_projects/projects/RKMVPC-Watermark/dist) directory for testing and archive access:
