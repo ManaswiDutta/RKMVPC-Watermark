@@ -398,8 +398,11 @@ class WatermarkApp:
         self._apply_dark_theme()
         self._setup_ui()
         self._update_tabs()
-
         self.root.bind("<Escape>", lambda e: self.select_element(None))
+        self.root.bind("<Up>",    self._on_arrow_key)
+        self.root.bind("<Down>",  self._on_arrow_key)
+        self.root.bind("<Left>",  self._on_arrow_key)
+        self.root.bind("<Right>", self._on_arrow_key)
         self.show_startup_dialog()
 
     # =========================================================================
@@ -1523,6 +1526,66 @@ class WatermarkApp:
             new_val = var.get() + (step * direction)
             new_val = max(min_v, min(max_v, new_val))
             var.set(new_val)
+            self._on_control_change()
+
+    def _on_arrow_key(self, event):
+        """Move the currently selected watermark element using keyboard arrow keys."""
+        # Don't intercept arrow keys if user is currently typing in a text entry or combo
+        focused = self.root.focus_get()
+        if isinstance(focused, (tk.Entry, ttk.Combobox)):
+            return
+
+        if not self.selected_element:
+            return
+
+        elem_map = {
+            "rkm":         (self.rkm_pos,         self.rkm_padx_var,         self.rkm_pady_var),
+            "club":        (self.club_pos,        self.club_padx_var,        self.club_pady_var),
+            "qr":          (self.qr_pos,          self.qr_padx_var,          self.qr_pady_var),
+            "copyright":   (self.copyright_pos,   self.copyright_padx_var,   self.copyright_pady_var),
+            "custom_text": (self.custom_text_pos, self.custom_text_padx_var, self.custom_text_pady_var),
+        }
+
+        if self.selected_element not in elem_map:
+            return
+
+        pos_var, padx_var, pady_var = elem_map[self.selected_element]
+        pos = pos_var.get()
+
+        step = 0.002
+        min_v, max_v = 0.0, 0.08
+        key = event.keysym
+        changed = False
+
+        if key in ("Left", "Right"):
+            curr_x = padx_var.get()
+            # In Top Right, Bottom Right: Right decreases pad_x (moves right), Left increases pad_x
+            # In Top Left, Bottom Left, Center: Right increases pad_x (moves right), Left decreases pad_x
+            if pos in ("Top Right", "Bottom Right"):
+                dx = -step if key == "Right" else step
+            else:
+                dx = step if key == "Right" else -step
+
+            new_x = max(min_v, min(max_v, round(curr_x + dx, 4)))
+            if new_x != curr_x:
+                padx_var.set(new_x)
+                changed = True
+
+        elif key in ("Up", "Down"):
+            curr_y = pady_var.get()
+            # In Bottom Left, Bottom Right: Down decreases pad_y (moves down), Up increases pad_y (moves up)
+            # In Top Left, Top Right, Center: Down increases pad_y (moves down), Up decreases pad_y (moves up)
+            if pos in ("Bottom Left", "Bottom Right"):
+                dy = -step if key == "Down" else step
+            else:
+                dy = step if key == "Down" else -step
+
+            new_y = max(min_v, min(max_v, round(curr_y + dy, 4)))
+            if new_y != curr_y:
+                pady_var.set(new_y)
+                changed = True
+
+        if changed:
             self._on_control_change()
     # =========================================================================
     #  Preview Rendering
