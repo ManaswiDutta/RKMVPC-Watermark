@@ -1,7 +1,4 @@
-# production.py  –  Vidyamandira Photo Watermarker  v3.5.0
-# Complete UI redesign: vertical sidebar navigation, scrollable control panel,
-# header bar, status bar, live slider values, and accent buttons. 100% watermarking logic preserved.
-
+import ctypes
 import datetime
 import os
 import random
@@ -12,6 +9,35 @@ from tkinter import filedialog, messagebox, ttk
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 
 VERSION = "3.5.0"
+
+# Set explicit Windows AppUserModelID so taskbar groups and shows the icon properly
+if sys.platform.startswith("win"):
+    try:
+        myappid = "rkmvpc.watermarker.desktop.3.5.0"
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    except Exception:
+        pass
+
+
+def _force_taskbar_icon(win):
+    """Forces Windows to display an overrideredirect/frameless window on the taskbar."""
+    if sys.platform.startswith("win"):
+        try:
+            win.update_idletasks()
+            GWL_EXSTYLE = -20
+            WS_EX_APPWINDOW = 0x00040000
+            WS_EX_TOOLWINDOW = 0x00000080
+            hwnd = ctypes.windll.user32.GetParent(win.winfo_id())
+            if not hwnd:
+                hwnd = win.winfo_id()
+            style = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
+            style = (style & ~WS_EX_TOOLWINDOW) | WS_EX_APPWINDOW
+            ctypes.windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style)
+            win.withdraw()
+            win.after(10, win.deiconify)
+        except Exception:
+            pass
+
 
 POSITIONS = [
     "Top Left",
@@ -292,6 +318,13 @@ class WatermarkApp:
         self.bnw_rkm_path = resource_path("bnw_rkm_logo.png")
         self.club_path    = resource_path("logo.png")
         self.qr_path      = resource_path("qr.jpeg")
+        self.icon_path    = resource_path("logo.ico")
+
+        try:
+            if os.path.exists(self.icon_path):
+                self.root.iconbitmap(self.icon_path)
+        except Exception:
+            pass
 
         try:
             if os.path.exists(self.club_path):
@@ -300,6 +333,8 @@ class WatermarkApp:
                 self.root.iconphoto(True, self.app_icon)
         except Exception as err:
             print(f"Could not load application icon: {err}")
+
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         self.selected_folder      = ""
         self.all_files            = []
@@ -1060,6 +1095,9 @@ class WatermarkApp:
         self.startup_win.geometry(
             f"+{(sw - WIN_W) // 2}+{(sh - WIN_H) // 2}")
 
+        # Ensure startup dialog appears on the Windows Taskbar
+        _force_taskbar_icon(self.startup_win)
+
         # Window Title bar with drag support
         tbar = tk.Frame(self.startup_win, bg="#0A0A0A", height=36)
         tbar.pack(fill=tk.X)
@@ -1159,15 +1197,47 @@ class WatermarkApp:
                   "Edit and export one\nimage with full preview",
                   self.startup_select_image).pack(side=tk.LEFT)
 
+    def on_closing(self):
+        """Clean shutdown handler to prevent zombie processes."""
+        if self._preview_timer is not None:
+            try:
+                self.root.after_cancel(self._preview_timer)
+            except Exception:
+                pass
+            self._preview_timer = None
+
+        if hasattr(self, 'startup_win') and self.startup_win:
+            try:
+                if self.startup_win.winfo_exists():
+                    self.startup_win.destroy()
+            except Exception:
+                pass
+
+        try:
+            self.root.quit()
+        except Exception:
+            pass
+        try:
+            self.root.destroy()
+        except Exception:
+            pass
+
+        os._exit(0)
+
     def close_app(self):
-        self.root.destroy()
+        self.on_closing()
 
     def startup_select_folder(self):
         folder = filedialog.askdirectory(
             title="Select Photo Directory", parent=self.startup_win)
         if folder:
-            self.startup_win.destroy()
+            if hasattr(self, 'startup_win') and self.startup_win:
+                self.startup_win.destroy()
+                self.startup_win = None
             self.root.deiconify()
+            self.root.state('normal')
+            self.root.lift()
+            self.root.focus_force()
             self._load_folder(folder)
 
     def startup_select_image(self):
@@ -1176,8 +1246,13 @@ class WatermarkApp:
             parent=self.startup_win,
             filetypes=[("Image Files", "*.jpg *.jpeg *.png *.webp *.bmp")])
         if file_path:
-            self.startup_win.destroy()
+            if hasattr(self, 'startup_win') and self.startup_win:
+                self.startup_win.destroy()
+                self.startup_win = None
             self.root.deiconify()
+            self.root.state('normal')
+            self.root.lift()
+            self.root.focus_force()
             self._load_single_image(file_path)
 
     # =========================================================================
@@ -1599,8 +1674,13 @@ if __name__ == "__main__":
     app = WatermarkApp(root)
 
     def on_resize(event):
-        if event.widget == root and app.sample_image_path:
+        if event.widget == root and app.sample_image_path and root.winfo_ismapped():
             app._on_control_change()
 
     root.bind("<Configure>", on_resize)
-    root.mainloop()
+    try:
+        root.mainloop()
+    except (KeyboardInterrupt, SystemExit):
+        pass
+    finally:
+        os._exit(0)
