@@ -134,4 +134,4 @@ To maintain past versions and release future updates cleanly on GitHub:
 
 ## 📄 License
 
-This project is maintained by the **Vidyamandira Photography Club**. Distributed under the [MIT License](LICENSE).
+This project is maintained by **Tech Society of Vidyamandira** for the **Photography Club**. Distributed under the [MIT License](LICENSE).
