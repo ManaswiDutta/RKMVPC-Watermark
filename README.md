@@ -13,7 +13,7 @@ A modern, desktop watermarking application custom-built for the **Vidyamandira P
 
 [![Download Latest Release v3.6.0 (Beta)](https://img.shields.io/badge/Download-RKMVPC__Beta.exe%20(v3.6.0%20Beta)-17B978?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/ManaswiDutta/RKMVPC-Watermark/raw/main/dist/RKMVPC_Beta.exe)
 
-> **Note:** Click the button above to directly download the latest standalone executable (`RKMVPC_Beta.exe` v3.6.0 Beta). No Python installation required!
+> **Note:** The beta version is just a proof of concepts we are currently working on and is far from completion. It is by no means made to be used on actual images. 
 
 ---
 
