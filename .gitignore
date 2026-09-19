@@ -2,8 +2,11 @@ main.py
 demo.py
 test.c
 *.dll
-
-RKMVPC.spec
-build
+*.spec
+tempCodeRunnerFile.py
+*_watermarked/
+build/
+__pycache__/
 C architecture
-__pycache__
+CSharp_Watermarker
+ART
